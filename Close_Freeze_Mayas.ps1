@@ -1,0 +1,1 @@
+﻿Get-Process maya | Where-Object {-not $_.Responding} | Stop-Process
