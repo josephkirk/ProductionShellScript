@@ -1,5 +1,5 @@
 $Project = "N:\Works\NS57\scenes"
-$RigMasterPath = "$Project\scenes\Rig"
+$RigMasterPath = "$Project\Scenes\Rig"
 Write-Output "Publish Path: $RigMasterPath"
 $NewPath = Read-Host "Do You Want To Change Collect Path
 Enter New Path (enter to skip)"
@@ -18,11 +18,17 @@ function CollectFile ($WildCard,$FolderName,$MasterFolder,$SourcesFiles) {
     Write-Output "
     ... Getting Files ... Please Wait ..."
     $Files = $SourcesFiles | Where-Object Name -like $WildCard
-    Write-Output "
-    Copying Files ..."
+    Write-Output "Copying Files ..."
     ForEach ($File in $Files) {
-        Copy-Item $File.FullName $DestPath -Force
-        Write-Output ($File.Name + " Modified:" + $File.LastWriteTime)
+        $CheckExistFile = Get-Item ("$DestPath\"+$File.Name)
+        If ( -not $CheckExistFile) {
+            Copy-Item $File.FullName $DestPath -Force
+            Write-Output ("Copy" + $File.Name + " Modified:" + $File.LastWriteTime)}
+        elseIf ($File.LastWriteTime -gt $CheckExistFile.LastWriteTime) {
+            Copy-Item $File.FullName $DestPath -Force
+            Write-Output ("OverWrite" + $CheckExistFile.Name + " Modified:" + $File.LastWriteTime)}
+        else {
+            Write-Output ("There is no Change to " + $CheckExistFile.Name + " Modified:" + $File.LastWriteTime)}
         }
     $Files
 }
@@ -40,12 +46,12 @@ Write-Output "
 ---------------- Xgen Copied ----------------"
 # Collect Animatic Rig Files
 $ANFILES = CollectFile "*_AN.mb" "AN" $RigMasterPath $AllMayaFiles
-mayapy "$PSScriptRoot\ReplaceReference.py" $RigMasterPath $ANFILES
+mayapy "$PSScriptRoot\processFiles.py" $RigMasterPath $ANFILES
 Write-Output "
 ---------------- Animatic Copied ----------------"
 # Collect Render Rig Files
 $RNFILES = CollectFile "*_RN.mb" "RN" $RigMasterPath $AllMayaFiles
-mayapy "$PSScriptRoot\ReplaceReference.py" $RigMasterPath $RNFILES
+mayapy "$PSScriptRoot\processFiles.py" $RigMasterPath $RNFILES
 Write-Output "
 ---------------- Final Rig Copied ----------------"
 explorer $RigMasterPath
