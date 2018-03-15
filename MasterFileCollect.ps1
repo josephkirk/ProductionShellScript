@@ -1,5 +1,5 @@
 $Project = "N:\Works\NS57\scenes"
-$RigMasterPath = "$Project\Scenes\Rig"
+$RigMasterPath = "$Project\Scene\Rig"
 Write-Output "Publish Path: $RigMasterPath"
 $NewPath = Read-Host "Do You Want To Change Collect Path
 Enter New Path (enter to skip)"
@@ -30,7 +30,7 @@ function CollectFile ($WildCard,$FolderName,$MasterFolder,$SourcesFiles) {
         else {
             Write-Output ("There is no Change to " + $CheckExistFile.Name + " Modified:" + $File.LastWriteTime)}
         }
-    $Files
+    Get-Childitem $DestPath | % { $_.FullName }
 }
 # Collect Facial Rig Files
 CollectFile "*_facialRig.ma" "FacialRig" $RigMasterPath $AllMayaFiles
@@ -46,6 +46,7 @@ Write-Output "
 ---------------- Xgen Copied ----------------"
 # Collect Animatic Rig Files
 $ANFILES = CollectFile "*_AN.mb" "AN" $RigMasterPath $AllMayaFiles
+Write-Output $ANFILES
 mayapy "$PSScriptRoot\processFiles.py" $RigMasterPath $ANFILES
 Write-Output "
 ---------------- Animatic Copied ----------------"

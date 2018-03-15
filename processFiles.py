@@ -7,6 +7,9 @@ except:
 import pymel.core as pm
 #sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(os.path.dirname(__file__)), '..')))
 def createCtlSets():
+    ctlSets = pm.ls('*ctlSet', type='objectSet')
+    if ctlSets:
+        pm.delete(ctlSets)
     ctlGp = pm.ls('ctlGp')
     if ctlGp:
         secGp = [c for c in ctlGp if c.getParent().name().startswith('sec')]
@@ -18,6 +21,18 @@ def createCtlSets():
                 ctlsSet = pm.sets(name=ctlsGp.name().split('_')[0]+'_ctlSet',text='gCharacterSet')
                 ctlsSet.union(ctls)
                 ctlAllSet.union(ctls)
+
+def deleteUnknowPlugin():
+    oldplugins = pm.unknownPlugin(q=True, list=True)
+    if oldplugins:
+        log.info('Found {} unknown plugins'.format(len(oldplugins)))
+        for plugin in oldplugins:
+            try:
+                pm.unknownPlugin(plugin, remove=True)
+                log.info('%s removed succesfully'%plugin)
+            except:
+                log.info('Cannot remove %s'%plugin)
+    pm.unloadPlugin('Turtle.mll')
 
 def replaceRef(newRefFiles):
     refs = pm.listReferences()
@@ -64,5 +79,6 @@ if sys.argv[1:]:
             hideLoc()
             offsim()
             deleteBaseAnim()
+            deleteUnknowPlugin()
             pm.saveFile()
             print "\n|{:_^60}|\n".format('File Save')
